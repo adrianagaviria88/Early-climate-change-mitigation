@@ -237,7 +237,7 @@
     </div>
 
     <script>
-        // Configuration - REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        // Configuration - Google Apps Script Web App URL
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwtiJZ5MKcMbdEfXlxYPMzlu0bXZUyxo7mJNy0-0qi-uruhosWxm3FzVBmrvaWRw_Fe/exec';
         
         // Game state
@@ -297,11 +297,24 @@
         }
         
         function submitData() {
-            const mitigation = parseInt(document.getElementById('mitigation').value);
+            const mitigationInput = document.getElementById('mitigation').value;
+            
+            // Validation - check for empty input first
+            if (mitigationInput === '') {
+                showMessage('Please enter a mitigation amount!', 'error');
+                return;
+            }
+            
+            const mitigation = parseInt(mitigationInput);
             
             // Validation
             if (!selectedCountry) {
                 showMessage('Please select your country first!', 'error');
+                return;
+            }
+            
+            if (isNaN(mitigation) || mitigation < 0) {
+                showMessage('Please enter a valid mitigation amount (0 or greater)!', 'error');
                 return;
             }
             
@@ -340,7 +353,10 @@
                 // Move to next round after 2 seconds
                 setTimeout(() => {
                     currentRound++;
-                    document.getElementById('mitigation').value = '';
+                    if (currentRound <= 10) {
+                        document.getElementById('mitigation').value = '';
+                        document.getElementById('mitigation').focus();
+                    }
                     updateDisplay();
                     submitBtn.disabled = false;
                     submitBtn.textContent = `Submit Round ${currentRound}`;
@@ -348,6 +364,7 @@
                 }, 2000);
             })
             .catch(error => {
+                console.error('Submission error:', error);
                 showMessage('Error submitting data. Please try again.', 'error');
                 submitBtn.disabled = false;
                 submitBtn.textContent = `Submit Round ${currentRound}`;
